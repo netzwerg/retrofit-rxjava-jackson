@@ -55,8 +55,8 @@ public class GitHubClientDemo {
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl("https://api.github.com/")
                 .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
-//                .addConverterFactory(GsonConverterFactory.create())    // <-- works
-                .addConverterFactory(JacksonConverterFactory.create()) // <-- does NOT work
+                .addConverterFactory(GsonConverterFactory.create())    // <-- works
+//                .addConverterFactory(JacksonConverterFactory.create()) // <-- does NOT work
                 .client(httpClient.build())
                 .build();
 
