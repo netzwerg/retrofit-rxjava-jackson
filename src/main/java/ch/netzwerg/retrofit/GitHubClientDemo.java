@@ -3,11 +3,12 @@ package ch.netzwerg.retrofit;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
-import retrofit2.converter.gson.GsonConverterFactory;
 import retrofit2.converter.jackson.JacksonConverterFactory;
 import retrofit2.http.GET;
 import retrofit2.http.Path;
@@ -52,12 +53,12 @@ public class GitHubClientDemo {
         OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
         httpClient.addInterceptor(logging);
 
+        ObjectMapper jacksonMapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl("https://api.github.com/")
                 .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
-                .addConverterFactory(GsonConverterFactory.create())    // <-- works
-//                .addConverterFactory(JacksonConverterFactory.create()) // <-- does NOT work
-                .client(httpClient.build())
+                .addConverterFactory(JacksonConverterFactory.create(jacksonMapper))
                 .build();
 
         GitHub gitHub = retrofit.create(GitHub.class);
@@ -71,7 +72,7 @@ public class GitHubClientDemo {
         subscriber.getOnNextEvents().forEach(
                 contributor -> System.out.println(contributor.getLogin() + " (" + contributor.getContributions() + ")")
         );
-
+        subscriber.getOnErrorEvents().forEach(Throwable::printStackTrace);
     }
 
 }
